@@ -1,0 +1,288 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+/// Utility functions to seed test data into Firebase
+class SeedUtils {
+  // Test account credentials
+  static const driverEmail = 'driver@mbaretoyou.com';
+  static const driverPassword = 'driver123';
+  static const vendorEmail = 'vendor@mbaretoyou.com';
+  static const vendorPassword = 'vendor123';
+  static const customerEmail = 'customer@mbaretoyou.com';
+  static const customerPassword = 'customer123';
+
+  static Future<void> seedTestData() async {
+    final firestore = FirebaseFirestore.instance;
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser == null) {
+      throw Exception('No user logged in');
+    }
+
+    print('🌱 Starting seed process...');
+
+    // Seed Vendors
+    print('📦 Seeding vendors...');
+    final vendors = await _seedVendors(firestore, currentUser.uid);
+    print('✅ Created ${vendors.length} vendors');
+
+    // Seed Products
+    print('📦 Seeding products...');
+    final productCount = await _seedProducts(firestore, vendors);
+    print('✅ Created $productCount products');
+
+    // Seed Driver
+    print('🚗 Seeding driver account...');
+    await _seedDriver(firestore);
+    print('✅ Driver account ready');
+
+    print('🎉 Seed complete!');
+    print('');
+    print('Test Accounts:');
+    print('  Driver: $driverEmail / $driverPassword');
+    print('  Vendor: $vendorEmail / $vendorPassword');
+  }
+
+  static Future<void> _seedDriver(FirebaseFirestore firestore) async {
+    // Create driver user document
+    final driverRef = firestore.collection('users').doc('driver-test-001');
+    final now = DateTime.now().toIso8601String();
+
+    await driverRef.set({
+      'id': driverRef.id,
+      'email': driverEmail,
+      'displayName': 'Test Driver',
+      'phoneNumber': '+263 77 999 8888',
+      'role': 'driver',
+      'isActive': true,
+      'isVerified': true,
+      'vehicleType': 'Motorcycle',
+      'vehicleNumber': 'AEZ 1234',
+      'totalDeliveries': 0,
+      'rating': 5.0,
+      'createdAt': now,
+      'updatedAt': now,
+    });
+    print('  ✓ Created driver: Test Driver');
+  }
+
+  static Future<List<String>> _seedVendors(
+    FirebaseFirestore firestore,
+    String ownerId,
+  ) async {
+    final vendorIds = <String>[];
+
+    // Vendor 1: Fresh Produce
+    final vendor1Ref = firestore.collection('vendors').doc();
+    final now = DateTime.now().toIso8601String();
+    await vendor1Ref.set({
+      'id': vendor1Ref.id,
+      'businessName': 'Fresh Produce by Mai Chipo',
+      'description': 'Fresh vegetables and fruits daily from Mbare Market',
+      'ownerId': ownerId,
+      'tableNumber': '15',
+      'marketSection': 'Section A - Vegetables',
+      'isApproved': true,
+      'isActive': true,
+      'rating': 4.5,
+      'totalReviews': 24,
+      'totalOrders': 156,
+      'logoUrl': '',
+      'phoneNumber': '+263 77 123 4567',
+      'email': 'chipo@mbaretoyou.com',
+      'createdAt': now,
+      'updatedAt': now,
+    });
+    vendorIds.add(vendor1Ref.id);
+    print('  ✓ Created vendor: Fresh Produce by Mai Chipo (${vendor1Ref.id})');
+
+    // Vendor 2: Musika Meats
+    final vendor2Ref = firestore.collection('vendors').doc();
+    await vendor2Ref.set({
+      'id': vendor2Ref.id,
+      'businessName': 'Musika Meats',
+      'description': 'Premium quality meat and poultry from trusted suppliers',
+      'ownerId': ownerId,
+      'tableNumber': '8',
+      'marketSection': 'Section B - Meat',
+      'isApproved': true,
+      'isActive': true,
+      'rating': 4.7,
+      'totalReviews': 18,
+      'totalOrders': 89,
+      'logoUrl': '',
+      'phoneNumber': '+263 77 234 5678',
+      'email': 'meats@mbaretoyou.com',
+      'createdAt': now,
+      'updatedAt': now,
+    });
+    vendorIds.add(vendor2Ref.id);
+    print('  ✓ Created vendor: Musika Meats (${vendor2Ref.id})');
+
+    return vendorIds;
+  }
+
+  static Future<int> _seedProducts(
+    FirebaseFirestore firestore,
+    List<String> vendorIds,
+  ) async {
+    var count = 0;
+    final now = DateTime.now().toIso8601String();
+
+    // Products for Vendor 1 (Fresh Produce)
+    final vendor1Products = [
+      {
+        'name': 'Fresh Tomatoes',
+        'description': 'Locally grown red ripe tomatoes',
+        'category': 'Vegetables',
+        'price': 2.5,
+        'unit': 'kg',
+        'stock': 50,
+      },
+      {
+        'name': 'Red Onions',
+        'description': 'Fresh red onions',
+        'category': 'Vegetables',
+        'price': 1.8,
+        'unit': 'kg',
+        'stock': 100,
+      },
+      {
+        'name': 'Fresh Cabbage',
+        'description': 'Green cabbage heads',
+        'category': 'Vegetables',
+        'price': 1.2,
+        'unit': 'head',
+        'stock': 30,
+      },
+      {
+        'name': 'Potatoes',
+        'description': 'Fresh potatoes',
+        'category': 'Vegetables',
+        'price': 2.0,
+        'unit': 'kg',
+        'stock': 80,
+      },
+      {
+        'name': 'Carrots',
+        'description': 'Fresh orange carrots',
+        'category': 'Vegetables',
+        'price': 1.5,
+        'unit': 'kg',
+        'stock': 45,
+      },
+      {
+        'name': 'Sweet Peppers',
+        'description': 'Colorful bell peppers',
+        'category': 'Vegetables',
+        'price': 3.0,
+        'unit': 'kg',
+        'stock': 25,
+      },
+      {
+        'name': 'Bananas',
+        'description': 'Ripe yellow bananas',
+        'category': 'Fruits',
+        'price': 2.0,
+        'unit': 'dozen',
+        'stock': 40,
+      },
+      {
+        'name': 'Oranges',
+        'description': 'Juicy sweet oranges',
+        'category': 'Fruits',
+        'price': 3.5,
+        'unit': 'kg',
+        'stock': 35,
+      },
+    ];
+
+    for (final product in vendor1Products) {
+      final productRef = firestore.collection('products').doc();
+      await productRef.set({
+        'id': productRef.id,
+        'vendorId': vendorIds[0],
+        'name': product['name'],
+        'description': product['description'],
+        'category': product['category'],
+        'price': product['price'],
+        'unit': product['unit'],
+        'stockQuantity': product['stock'],
+        'isAvailable': true,
+        'isActive': true,
+        'images': [],
+        'createdAt': now,
+        'updatedAt': now,
+      });
+      count++;
+      print('  ✓ Created product: ${product['name']}');
+    }
+
+    // Products for Vendor 2 (Musika Meats)
+    final vendor2Products = [
+      {
+        'name': 'Whole Chicken',
+        'description': 'Fresh whole chicken',
+        'category': 'Poultry',
+        'price': 8.5,
+        'unit': 'kg',
+        'stock': 20,
+      },
+      {
+        'name': 'Chicken Pieces',
+        'description': 'Fresh chicken cuts',
+        'category': 'Poultry',
+        'price': 9.0,
+        'unit': 'kg',
+        'stock': 15,
+      },
+      {
+        'name': 'Beef Steak',
+        'description': 'Premium beef steak',
+        'category': 'Meat',
+        'price': 12.0,
+        'unit': 'kg',
+        'stock': 10,
+      },
+      {
+        'name': 'Beef Mince',
+        'description': 'Fresh ground beef',
+        'category': 'Meat',
+        'price': 10.0,
+        'unit': 'kg',
+        'stock': 25,
+      },
+      {
+        'name': 'Pork Chops',
+        'description': 'Fresh pork chops',
+        'category': 'Meat',
+        'price': 10.5,
+        'unit': 'kg',
+        'stock': 12,
+      },
+    ];
+
+    for (final product in vendor2Products) {
+      final productRef = firestore.collection('products').doc();
+      await productRef.set({
+        'id': productRef.id,
+        'vendorId': vendorIds[1],
+        'name': product['name'],
+        'description': product['description'],
+        'category': product['category'],
+        'price': product['price'],
+        'unit': product['unit'],
+        'stockQuantity': product['stock'],
+        'isAvailable': true,
+        'isActive': true,
+        'images': [],
+        'createdAt': now,
+        'updatedAt': now,
+      });
+      count++;
+      print('  ✓ Created product: ${product['name']}');
+    }
+
+    return count;
+  }
+}

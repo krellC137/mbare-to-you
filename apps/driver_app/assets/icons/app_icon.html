@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .icon {
+      width: 512px;
+      height: 512px;
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      border-radius: 115px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .delivery-truck {
+      width: 340px;
+      height: 200px;
+      position: relative;
+    }
+    .cabin {
+      width: 100px;
+      height: 120px;
+      background: white;
+      border-radius: 15px 15px 0 0;
+      position: absolute;
+      left: 0;
+      bottom: 50px;
+    }
+    .cabin-window {
+      width: 70px;
+      height: 60px;
+      background: rgba(79, 172, 254, 0.3);
+      border-radius: 10px;
+      position: absolute;
+      top: 15px;
+      left: 15px;
+    }
+    .cargo {
+      width: 200px;
+      height: 140px;
+      background: white;
+      border-radius: 15px 15px 0 0;
+      position: absolute;
+      right: 0;
+      bottom: 50px;
+    }
+    .cargo-door {
+      width: 160px;
+      height: 100px;
+      background: rgba(79, 172, 254, 0.15);
+      border-radius: 10px;
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
+    .wheel {
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 50%;
+      position: absolute;
+      bottom: 0;
+      border: 8px solid rgba(79, 172, 254, 0.3);
+    }
+    .wheel-front {
+      left: 30px;
+    }
+    .wheel-back {
+      right: 40px;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">
+    <div class="delivery-truck">
+      <div class="cabin">
+        <div class="cabin-window"></div>
+      </div>
+      <div class="cargo">
+        <div class="cargo-door"></div>
+      </div>
+      <div class="wheel wheel-front"></div>
+      <div class="wheel wheel-back"></div>
+    </div>
+  </div>
+</body>
+</html>

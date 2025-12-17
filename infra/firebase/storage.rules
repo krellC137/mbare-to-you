@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isValidImage() {
+      return request.resource.contentType.matches('image/.*') &&
+             request.resource.size < 5 * 1024 * 1024; // 5MB limit
+    }
+
+    function isValidImageFormat() {
+      return request.resource.contentType in [
+        'image/jpeg',
+        'image/jpg',
+        'image/png',
+        'image/webp'
+      ];
+    }
+
+    // User profile photos
+    match /users/{userId}/profile/{filename} {
+      // Anyone can read profile photos
+      allow read: if true;
+
+      // Users can upload their own profile photo
+      allow create, update: if isAuthenticated() &&
+                              isOwner(userId) &&
+                              isValidImage() &&
+                              isValidImageFormat();
+
+      // Users can delete their own profile photo
+      allow delete: if isAuthenticated() && isOwner(userId);
+    }
+
+    // Vendor logos
+    match /vendors/{vendorId}/logo/{filename} {
+      // Anyone can read vendor logos
+      allow read: if true;
+
+      // Authenticated users can upload vendor logo
+      // Note: Additional validation should be done in Cloud Functions
+      allow create, update: if isAuthenticated() &&
+                              isValidImage() &&
+                              isValidImageFormat();
+
+      // Vendor owners can delete their logo
+      allow delete: if isAuthenticated();
+    }
+
+    // Product images
+    match /vendors/{vendorId}/products/{productId}/{filename} {
+      // Anyone can read product images
+      allow read: if true;
+
+      // Authenticated users can upload product images
+      // Note: Additional validation should be done in Cloud Functions
+      allow create, update: if isAuthenticated() &&
+                              isValidImage() &&
+                              isValidImageFormat();
+
+      // Vendor owners can delete their product images
+      allow delete: if isAuthenticated();
+    }
+
+    // Review images
+    match /reviews/{reviewId}/{filename} {
+      // Anyone can read review images
+      allow read: if true;
+
+      // Authenticated users can upload review images
+      allow create, update: if isAuthenticated() &&
+                              isValidImage() &&
+                              isValidImageFormat();
+
+      // Review author can delete their review images
+      allow delete: if isAuthenticated();
+    }
+
+    // Driver documents (licenses, vehicle registration, etc.)
+    match /drivers/{driverId}/documents/{filename} {
+      // Only the driver and admins can read driver documents
+      allow read: if isAuthenticated() && isOwner(driverId);
+
+      // Drivers can upload their documents
+      allow create, update: if isAuthenticated() &&
+                              isOwner(driverId) &&
+                              request.resource.size < 10 * 1024 * 1024; // 10MB limit
+
+      // Drivers can delete their documents
+      allow delete: if isAuthenticated() && isOwner(driverId);
+    }
+
+    // Default: deny all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

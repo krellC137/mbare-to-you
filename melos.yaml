@@ -1,0 +1,63 @@
+name: mbare_to_you
+
+packages:
+  - apps/**
+  - packages/**
+
+command:
+  version:
+    branch: main
+    message: "chore: publish packages"
+
+  bootstrap:
+    runPubGetInParallel: true
+    runPubGetOffline: false
+
+scripts:
+  analyze:
+    description: Run static analysis for all packages
+    run: melos exec -- flutter analyze
+
+  format:
+    description: Format all packages
+    run: melos exec -- dart format --set-exit-if-changed .
+
+  test:
+    description: Run tests for all packages
+    run: melos exec --fail-fast -- flutter test
+
+  test:unit:
+    description: Run unit tests
+    run: melos exec --fail-fast -- flutter test test/unit
+
+  test:widget:
+    description: Run widget tests
+    run: melos exec --fail-fast -- flutter test test/widget
+
+  clean:
+    description: Clean all packages
+    run: melos exec -- flutter clean
+
+  get:
+    description: Get dependencies for all packages
+    run: melos exec -- flutter pub get
+
+  build:apk:
+    description: Build APK for customer app
+    run: cd apps/customer_app && flutter build apk --release
+
+  build:ios:
+    description: Build iOS for customer app
+    run: cd apps/customer_app && flutter build ios --release --no-codesign
+
+  codegen:
+    description: Run code generation for all packages
+    run: melos exec -- dart run build_runner build --delete-conflicting-outputs
+
+  codegen:watch:
+    description: Watch code generation for all packages
+    run: melos exec -- dart run build_runner watch --delete-conflicting-outputs
+
+  lint:
+    description: Run linter for all packages
+    run: melos exec -- flutter analyze --fatal-infos --fatal-warnings

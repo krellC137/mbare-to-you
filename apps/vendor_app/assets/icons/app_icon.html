@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .icon {
+      width: 512px;
+      height: 512px;
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      border-radius: 115px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+    }
+    .store {
+      width: 320px;
+      height: 320px;
+      position: relative;
+    }
+    .awning {
+      width: 320px;
+      height: 80px;
+      background: white;
+      border-radius: 15px 15px 0 0;
+      position: relative;
+      overflow: hidden;
+    }
+    .stripe {
+      width: 100%;
+      height: 16px;
+      background: rgba(245, 87, 108, 0.3);
+      position: absolute;
+    }
+    .stripe:nth-child(2) { top: 32px; }
+    .stripe:nth-child(3) { top: 64px; }
+    .building {
+      width: 320px;
+      height: 200px;
+      background: white;
+      position: relative;
+      border-radius: 0 0 15px 15px;
+    }
+    .door {
+      width: 100px;
+      height: 140px;
+      background: rgba(245, 87, 108, 0.2);
+      border-radius: 10px 10px 0 0;
+      position: absolute;
+      bottom: 0;
+      left: 110px;
+    }
+    .window {
+      width: 60px;
+      height: 60px;
+      background: rgba(245, 87, 108, 0.15);
+      border-radius: 8px;
+      position: absolute;
+      top: 40px;
+    }
+    .window-left {
+      left: 30px;
+    }
+    .window-right {
+      right: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="icon">
+    <div class="store">
+      <div class="awning">
+        <div class="stripe"></div>
+        <div class="stripe"></div>
+        <div class="stripe"></div>
+      </div>
+      <div class="building">
+        <div class="window window-left"></div>
+        <div class="window window-right"></div>
+        <div class="door"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

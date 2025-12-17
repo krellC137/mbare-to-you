@@ -1,0 +1,10 @@
+# melos_managed_dependency_overrides: mbare_core,mbare_data,mbare_services,mbare_ui
+dependency_overrides:
+  mbare_core:
+    path: ..\\..\\packages\\mbare_core
+  mbare_data:
+    path: ..\\..\\packages\\mbare_data
+  mbare_services:
+    path: ..\\..\\packages\\mbare_services
+  mbare_ui:
+    path: ..\\..\\packages\\mbare_ui

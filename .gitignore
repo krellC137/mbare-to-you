@@ -1,0 +1,84 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# VS Code
+.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+.fvm/
+
+# Generated files
+**/*.g.dart
+**/*.freezed.dart
+**/*.gen.dart
+**/generated/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android
+**/android/app/debug
+**/android/app/profile
+**/android/app/release
+**/android/.gradle
+**/android/captures/
+**/android/local.properties
+**/android/key.properties
+
+# iOS
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/Flutter.podspec
+**/ios/.DS_Store
+
+# Environment & secrets
+.env
+.env.*
+*.key
+*.jks
+*.p12
+*.pem
+google-services.json
+GoogleService-Info.plist
+firebase-config.json
+
+# Melos
+.melos_tool/
+
+# Cloud Functions
+infra/cloud_functions/node_modules/
+infra/cloud_functions/lib/
+infra/cloud_functions/.env
+
+# Coverage
+coverage/
+*.lcov

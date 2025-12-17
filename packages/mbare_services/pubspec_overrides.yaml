@@ -1,0 +1,4 @@
+# melos_managed_dependency_overrides: mbare_core
+dependency_overrides:
+  mbare_core:
+    path: ..\\mbare_core

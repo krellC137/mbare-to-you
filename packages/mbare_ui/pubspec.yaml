@@ -1,0 +1,32 @@
+name: mbare_ui
+description: Shared UI components, theme, and design system for MbareToYou
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  mbare_core:
+    path: ../mbare_core
+
+  # UI utilities
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Uncomment when assets are added
+  # assets:
+  #   - assets/images/
+  #   - assets/icons/

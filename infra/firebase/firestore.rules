@@ -1,0 +1,283 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ⚠️ DEVELOPMENT MODE: Allow all authenticated users
+    // TODO: Remove this before production deployment
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isUser(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function getUserRole() {
+      return getUserData().role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+             exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+             getUserRole() == 'admin';
+    }
+
+    function isVendor() {
+      return isAuthenticated() && getUserRole() == 'vendor';
+    }
+
+    function isDriver() {
+      return isAuthenticated() && getUserRole() == 'driver';
+    }
+
+    function isCustomer() {
+      return isAuthenticated() && getUserRole() == 'customer';
+    }
+
+    function isVendorOwner(vendorId) {
+      return isAuthenticated() &&
+             get(/databases/$(database)/documents/vendors/$(vendorId)).data.ownerId == request.auth.uid;
+    }
+
+    // Users collection
+    match /users/{userId} {
+      // Anyone can read user profiles (for displaying names, etc.)
+      allow read: if isAuthenticated();
+
+      // Users can only create/update their own profile
+      allow create: if isUser(userId) &&
+                      request.resource.data.id == userId &&
+                      request.resource.data.email == request.auth.token.email;
+
+      allow update: if isUser(userId) || isAdmin();
+
+      // Only admins can delete users
+      allow delete: if isAdmin();
+    }
+
+    // Vendors collection
+    match /vendors/{vendorId} {
+      // Anyone can read approved and active vendors
+      allow read: if resource.data.isApproved == true &&
+                    resource.data.isActive == true;
+
+      // Admins can read all vendors
+      allow read: if isAdmin();
+
+      // Vendor owners can read their own vendor
+      allow read: if isVendorOwner(vendorId);
+
+      // Authenticated users with vendor role can create vendors
+      allow create: if isAuthenticated() &&
+                      isVendor() &&
+                      request.resource.data.ownerId == request.auth.uid &&
+                      request.resource.data.isApproved == false;
+
+      // Vendor owners can update their own vendor (except approval status)
+      allow update: if isVendorOwner(vendorId) &&
+                      request.resource.data.isApproved == resource.data.isApproved;
+
+      // Admins can update any vendor (including approval)
+      allow update: if isAdmin();
+
+      // Only admins can delete vendors
+      allow delete: if isAdmin();
+
+      // Products subcollection
+      match /products/{productId} {
+        // Anyone can read active products from approved vendors
+        allow read: if resource.data.isActive == true &&
+                      get(/databases/$(database)/documents/vendors/$(vendorId)).data.isApproved == true;
+
+        // Vendor owners can read their own products
+        allow read: if isVendorOwner(vendorId);
+
+        // Admins can read all products
+        allow read: if isAdmin();
+
+        // Vendor owners can create/update/delete their own products
+        allow create, update, delete: if isVendorOwner(vendorId);
+
+        // Admins can create/update/delete any products
+        allow create, update, delete: if isAdmin();
+      }
+    }
+
+    // Orders collection
+    match /orders/{orderId} {
+      // Customers can read their own orders
+      allow read: if isAuthenticated() &&
+                    resource.data.customerId == request.auth.uid;
+
+      // Vendors can read orders for their products
+      allow read: if isAuthenticated() &&
+                    resource.data.vendorId == request.auth.uid;
+
+      // Drivers can read orders assigned to them
+      allow read: if isAuthenticated() &&
+                    resource.data.driverId == request.auth.uid;
+
+      // Admins can read all orders
+      allow read: if isAdmin();
+
+      // Customers can create orders
+      allow create: if isAuthenticated() &&
+                      isCustomer() &&
+                      request.resource.data.customerId == request.auth.uid &&
+                      request.resource.data.status == 'pending';
+
+      // Vendors can update order status for their orders
+      allow update: if isAuthenticated() &&
+                      resource.data.vendorId == request.auth.uid &&
+                      request.resource.data.status in ['confirmed', 'preparing', 'ready', 'cancelled'];
+
+      // Drivers can update order status for assigned orders
+      allow update: if isAuthenticated() &&
+                      resource.data.driverId == request.auth.uid &&
+                      request.resource.data.status in ['picked_up', 'in_transit', 'delivered'];
+
+      // Customers can cancel their pending/confirmed orders
+      allow update: if isAuthenticated() &&
+                      resource.data.customerId == request.auth.uid &&
+                      resource.data.status in ['pending', 'confirmed'] &&
+                      request.resource.data.status == 'cancelled';
+
+      // Admins can update any order
+      allow update: if isAdmin();
+
+      // No one can delete orders (use soft delete with status)
+      allow delete: if false;
+    }
+
+    // Payments collection
+    // Only Cloud Functions can write to payments
+    match /payments/{paymentId} {
+      // Users can read their own payment records
+      allow read: if isAuthenticated() &&
+                    resource.data.customerId == request.auth.uid;
+
+      // Admins can read all payments
+      allow read: if isAdmin();
+
+      // Only server (Cloud Functions) can write
+      allow write: if false;
+    }
+
+    // Drivers collection
+    match /drivers/{driverId} {
+      // Anyone can read approved and active drivers
+      allow read: if resource.data.isApproved == true &&
+                    resource.data.isActive == true;
+
+      // Admins can read all drivers
+      allow read: if isAdmin();
+
+      // Drivers can read their own profile
+      allow read: if isUser(driverId);
+
+      // Authenticated users with driver role can create driver profile
+      allow create: if isAuthenticated() &&
+                      isDriver() &&
+                      request.resource.data.userId == request.auth.uid &&
+                      request.resource.data.isApproved == false;
+
+      // Drivers can update their own profile (except approval status)
+      allow update: if isUser(driverId) &&
+                      request.resource.data.isApproved == resource.data.isApproved;
+
+      // Admins can update any driver (including approval)
+      allow update: if isAdmin();
+
+      // Only admins can delete drivers
+      allow delete: if isAdmin();
+    }
+
+    // Reviews collection
+    match /reviews/{reviewId} {
+      // Anyone can read reviews
+      allow read: if true;
+
+      // Authenticated users can create reviews for their completed orders
+      // Validation: user must be the reviewer and order must be delivered
+      allow create: if isAuthenticated() &&
+                      request.resource.data.reviewerId == request.auth.uid &&
+                      request.resource.data.rating >= 1 &&
+                      request.resource.data.rating <= 5 &&
+                      exists(/databases/$(database)/documents/orders/$(request.resource.data.orderId)) &&
+                      get(/databases/$(database)/documents/orders/$(request.resource.data.orderId)).data.status == 'delivered';
+
+      // Users can update their own reviews (within 24 hours)
+      allow update: if isAuthenticated() &&
+                      resource.data.reviewerId == request.auth.uid &&
+                      request.time < resource.data.createdAt + duration.value(24, 'h');
+
+      // Users can delete their own reviews
+      allow delete: if isAuthenticated() &&
+                      resource.data.reviewerId == request.auth.uid;
+
+      // Admins can delete any review
+      allow delete: if isAdmin();
+    }
+
+    // Notifications collection
+    match /notifications/{notificationId} {
+      // Users can read their own notifications
+      allow read: if isAuthenticated() &&
+                    resource.data.userId == request.auth.uid;
+
+      // Users can update (mark as read) their own notifications
+      allow update: if isAuthenticated() &&
+                      resource.data.userId == request.auth.uid &&
+                      request.resource.data.keys().hasOnly(['isRead', 'readAt']);
+
+      // Only server (Cloud Functions) can create/delete notifications
+      allow create, delete: if false;
+    }
+
+    // Addresses collection
+    match /addresses/{addressId} {
+      // Users can read their own addresses
+      allow read: if isAuthenticated() &&
+                    resource.data.userId == request.auth.uid;
+
+      // Users can create their own addresses
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+
+      // Users can update their own addresses
+      allow update: if isAuthenticated() &&
+                      resource.data.userId == request.auth.uid;
+
+      // Users can delete their own addresses
+      allow delete: if isAuthenticated() &&
+                      resource.data.userId == request.auth.uid;
+
+      // Admins can read all addresses
+      allow read: if isAdmin();
+    }
+
+    // Settings collection (platform configuration)
+    match /settings/{settingId} {
+      // Everyone can read settings (needed for app configuration)
+      allow read: if true;
+
+      // Only admins can write settings
+      allow write: if isAdmin();
+    }
+
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

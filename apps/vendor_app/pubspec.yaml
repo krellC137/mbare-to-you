@@ -1,0 +1,77 @@
+name: vendor_app
+description: MbareToYou Vendor Mobile Application
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Local packages
+  mbare_core:
+    path: ../../packages/mbare_core
+  mbare_ui:
+    path: ../../packages/mbare_ui
+  mbare_services:
+    path: ../../packages/mbare_services
+  mbare_data:
+    path: ../../packages/mbare_data
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing
+  go_router: ^14.6.2
+
+  # Firebase
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.2
+  firebase_storage: ^12.3.7
+  firebase_messaging: ^15.1.5
+
+  # UI
+  cupertino_icons: ^1.0.8
+  cached_network_image: ^3.4.1
+  shimmer: ^3.0.0
+  flutter_svg: ^2.0.10+1
+  fl_chart: ^0.69.0
+
+  # Utilities
+  intl: ^0.19.0
+  logger: ^2.5.0
+  image_picker: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Code generation
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.6.4
+
+  # Linting
+  flutter_lints: ^5.0.0
+
+  # Icon generation
+  flutter_launcher_icons: ^0.14.1
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+    - assets/icons/
+
+# Flutter Launcher Icons configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icons/app_icon.png"
+  # Disable adaptive icons to prevent cropping
+  adaptive_icon_background: "assets/icons/app_icon.png"
+  adaptive_icon_foreground: "assets/icons/app_icon.png"

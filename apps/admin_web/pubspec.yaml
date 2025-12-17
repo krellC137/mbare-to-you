@@ -1,0 +1,56 @@
+name: admin_web
+description: MbareToYou Admin Web Dashboard
+version: 1.0.0+1
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Local packages
+  mbare_core:
+    path: ../../packages/mbare_core
+  mbare_ui:
+    path: ../../packages/mbare_ui
+  mbare_services:
+    path: ../../packages/mbare_services
+  mbare_data:
+    path: ../../packages/mbare_data
+
+  # State management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing
+  go_router: ^14.6.2
+
+  # Firebase
+  firebase_core: ^3.8.1
+  firebase_auth: ^5.3.3
+  cloud_firestore: ^5.5.2
+
+  # UI
+  cupertino_icons: ^1.0.8
+  fl_chart: ^0.69.2
+  data_table_2: ^2.5.15
+
+  # Utilities
+  intl: ^0.19.0
+  logger: ^2.5.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Code generation
+  build_runner: ^2.4.13
+  riverpod_generator: ^2.6.4
+
+  # Linting
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
